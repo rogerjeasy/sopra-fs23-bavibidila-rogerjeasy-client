@@ -6,6 +6,7 @@ import {Button} from 'components/ui/Button';
 import 'styles/views/Login.scss';
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
+import Register from './Register';
 
 /*
 It is possible to add multiple components inside a single file,
@@ -37,13 +38,15 @@ FormField.propTypes = {
 
 const Login = props => {
   const history = useHistory();
-  const [name, setName] = useState(null);
   const [username, setUsername] = useState(null);
+  const [name, setName] = useState('roger');
+  const [password, setPassword] = useState(null);
 
   const doLogin = async () => {
     try {
-      const requestBody = JSON.stringify({username, name});
+      const requestBody = JSON.stringify({name, username, password});
       const response = await api.post('/users', requestBody);
+      console.log(requestBody)
 
       // Get the returned user and update a new object.
       const user = new User(response.data);
@@ -58,6 +61,12 @@ const Login = props => {
     }
   };
 
+  const sendUserToRegister = () => {
+    history.push(`/register`);
+ 
+  };
+
+
   return (
     <BaseContainer>
       <div className="login container">
@@ -68,17 +77,25 @@ const Login = props => {
             onChange={un => setUsername(un)}
           />
           <FormField
-            label="Name"
-            value={name}
-            onChange={n => setName(n)}
+            label="Password"
+            value={password}
+            onChange={n => setPassword(n)}
           />
           <div className="login button-container">
             <Button
-              disabled={!username || !name}
+              disabled={!username || !password}
               width="100%"
               onClick={() => doLogin()}
             >
               Login
+            </Button>
+          </div>
+          <div >
+            <Button 
+              onClick={() => sendUserToRegister()}
+              width="100%"
+              >
+              Don't have an account? Sign up
             </Button>
           </div>
         </div>
