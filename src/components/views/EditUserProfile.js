@@ -34,10 +34,11 @@ const FormField = props => {
     onChange: PropTypes.func
   };
 
+
   const EditUserProfile = props => {
     const history = useHistory();
     const [username, setUsername] = useState(null);
-    const [birthDay, setBirthDay] = useState(new Date());
+    const [birthDay, setBirthDay] = useState('');
   
     const doEditProfile = async () => {
         try {
@@ -51,6 +52,10 @@ const FormField = props => {
         alert(`The username provided already exists.`);
       }
  };
+
+ function handleDateChange(event) {
+  setBirthDay(event.target.value);
+};
   
   return (
     <BaseContainer>
@@ -63,6 +68,13 @@ const FormField = props => {
         />
 
         {/* <DatePicker selected = {birthDay} onChange={(birthDay)=>setBirthDay(birthDay)} dateFormat="dd-MM-yyyy"/> */}
+
+        <input
+          type="date"
+          value={birthDay}
+          onChange={handleDateChange}
+          max={new Date().toISOString().split('T')[0]}
+        />
 
         <div className="login button-container">
           <Button
