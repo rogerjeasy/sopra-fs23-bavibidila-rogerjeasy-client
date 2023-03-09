@@ -6,8 +6,6 @@ import {Button} from 'components/ui/Button'
 import 'styles/views/Login.scss'
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-// import DatePicker from 'react-datepicker';
-// import 'react-datepicker/dist/react-datepicker.css'
 
 
 const FormField = props => {
@@ -62,7 +60,6 @@ const FormField = props => {
           onChange={un => setUsername(un)}
         />
 
-        
         <div className="login button-container">
           <Button
             disabled={!username && !birthDay}
