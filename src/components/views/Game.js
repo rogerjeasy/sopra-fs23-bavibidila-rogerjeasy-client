@@ -30,9 +30,21 @@ const Game = () => {
   // more information can be found under https://reactjs.org/docs/hooks-state.html
   const [users, setUsers] = useState(null);
 
-  const logout = () => {
+  async function logout(){
+    const response = await api.post('/users/logout/'+localStorage.getItem('id'));
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setUsers(response.data);
     localStorage.removeItem('token');
-    history.push('/login');
+    history.push('/');
+  }
+
+  const editProfile = () => {
+    history.push('/edit')
+  }
+
+  const viewProfile = (id) => {
+    localStorage.setItem('id',id)
+    history.push("/profile");
   }
 
   // the effect hook can be used to react to change in your component.
@@ -40,21 +52,12 @@ const Game = () => {
   // this can be achieved by leaving the second argument an empty array.
   // for more information on the effect hook, please see https://reactjs.org/docs/hooks-effect.html
   useEffect(() => {
-    // effect callbacks are synchronous to prevent race conditions. So we put the async function inside:
     async function fetchData() {
       try {
         const response = await api.get('/users');
-
-        // delays continuous execution of an async operation for 1 second.
-        // This is just a fake async call, so that the spinner can be displayed
-        // feel free to remove it :)
         await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Get the returned users and update the state.
         setUsers(response.data);
 
-        // This is just some data for you to see what is available.
-        // Feel free to remove it.
         console.log('request to:', response.request.responseURL);
         console.log('status code:', response.status);
         console.log('status text:', response.statusText);
@@ -76,10 +79,16 @@ const Game = () => {
 
   if (users) {
     content = (
+      
       <div className="game">
         <ul className="game user-list">
           {users.map(user => (
-            <Player user={user} key={user.id}/>
+            <div>
+              <Player user={user} key={user.id}/>
+              <li key={user} onClick={() => viewProfile(user.id)}>
+                {user.username}
+              </li>
+            </div>
           ))}
         </ul>
         <Button
@@ -92,11 +101,14 @@ const Game = () => {
     );
   }
 
+
   return (
     <BaseContainer className="game container">
-      <h2>Happy Coding!</h2>
+      <h2>List of Registered Users</h2>
       <p className="game paragraph">
-        Get all users from secure endpoint:
+      <Button width="100%" onClick={() => editProfile()}>
+              Edit your profile
+        </Button>
       </p>
       {content}
     </BaseContainer>

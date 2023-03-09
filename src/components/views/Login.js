@@ -6,14 +6,8 @@ import {Button} from 'components/ui/Button';
 import 'styles/views/Login.scss';
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
-import Register from './Register';
 
-/*
-It is possible to add multiple components inside a single file,
-however be sure not to clutter your files with an endless amount!
-As a rule of thumb, use one file per component and only add small,
-specific components that belong to the main one in the same file.
- */
+
 const FormField = props => {
   return (
     <div className="login field">
@@ -39,33 +33,33 @@ FormField.propTypes = {
 const Login = props => {
   const history = useHistory();
   const [username, setUsername] = useState(null);
-  const [name, setName] = useState('roger');
   const [password, setPassword] = useState(null);
 
   const doLogin = async () => {
     try {
-      const requestBody = JSON.stringify({name, username, password});
-      const response = await api.post('/users', requestBody);
-      console.log(requestBody)
+      const requestBody = JSON.stringify({username, password});
+      const response = await api.post('/users/login', requestBody);
 
-      // Get the returned user and update a new object.
-      const user = new User(response.data);
+      if (response.data['id'] != null){
 
-      // Store the token into the local storage.
-      localStorage.setItem('token', user.token);
-
-      // Login successfully worked --> navigate to the route /game in the GameRouter
-      history.push(`/game`);
+        // Get the returned user and update a new object
+        const user = new User(response.data);
+        // Store the token into the local storage.
+        localStorage.setItem('token', user.token);
+        localStorage.setItem('id', user.id);
+        // Login successfully worked --> navigate to the route /game in the GameRouter
+        history.push(`/game`);
+      }
+      else
+      {
+        alert('Invalid Username or Password Entered!')
+        history.push('/login')
+      }
+      
     } catch (error) {
       alert(`Something went wrong during the login: \n${handleError(error)}`);
     }
   };
-
-  const sendUserToRegister = () => {
-    history.push(`/register`);
- 
-  };
-
 
   return (
     <BaseContainer>
@@ -79,7 +73,7 @@ const Login = props => {
           <FormField
             label="Password"
             value={password}
-            onChange={n => setPassword(n)}
+            onChange={psswd => setPassword(psswd)}
           />
           <div className="login button-container">
             <Button
@@ -88,14 +82,6 @@ const Login = props => {
               onClick={() => doLogin()}
             >
               Login
-            </Button>
-          </div>
-          <div >
-            <Button 
-              onClick={() => sendUserToRegister()}
-              width="100%"
-              >
-              Don't have an account? Sign up
             </Button>
           </div>
         </div>

@@ -2,12 +2,11 @@ import {BrowserRouter, Redirect, Route, Switch} from "react-router-dom";
 import {GameGuard} from "components/routing/routeProtectors/GameGuard";
 import GameRouter from "components/routing/routers/GameRouter";
 import {LoginGuard} from "components/routing/routeProtectors/LoginGuard";
-import {RegisterGuard} from "../routeProtectors/RegisterGuard";
 import Login from "components/views/Login";
+import HomePage from "components/views/HomePage";
 import Register from "components/views/Register";
-import LoginRegistration from "components/views/LoginRegister";
-import { LoginRegisterGuard} from "../routeProtectors/RegisterGuard";
-
+import UserProfile from "components/views/UserProfile";
+import EditUserProfile from "components/views/EditUserProfile";
 /**
  * Main router of your application.
  * In the following class, different routes are rendered. In our case, there is a Login Route with matches the path "/login"
@@ -21,24 +20,35 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Switch>
+
         <Route path="/game">
           <GameGuard>
             <GameRouter base="/game"/>
           </GameGuard>
         </Route>
+
         <Route exact path="/login">
           <LoginGuard>
             <Login/>
           </LoginGuard>
         </Route>
+
         <Route exact path="/register">
-          <RegisterGuard>
             <Register/>
-          </RegisterGuard>
         </Route>
+
+        <Route exact path="/edit">
+            <EditUserProfile/>
+        </Route>
+
         <Route exact path="/">
-          <Redirect to="/game"/>
+            <HomePage/>
         </Route>
+
+        <Route exact path="/profile">
+          <UserProfile/>
+        </Route>
+
       </Switch>
     </BrowserRouter>
   );

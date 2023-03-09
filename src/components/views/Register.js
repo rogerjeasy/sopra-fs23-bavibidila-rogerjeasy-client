@@ -32,83 +32,58 @@ const FormField = props => {
 
 const Register = props => {
   const history = useHistory();
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
-  const [studentID, setStudentID] = useState(null);
-  const [birthday, setBirthday] = useState(null);
+  const [username, setUsername] = useState(null);
   const [password, setPassword] = useState(null);
-  const [confirmPassword, setConfirmPassword] = useState(null);
+
 
   const doRegister = async () => {
-    const requestBody = JSON.stringify({firstName, lastName, studentID, birthday, password, confirmPassword});
-    const response = await api.post('/users', requestBody);
+    try {
+      const requestBody = JSON.stringify({username, password});
+      const response = await api.post('/users', requestBody);
 
-    // Get the returned user and update a new object.
-    const user = new User(response.data);
+      // Get the returned user and update a new object.
+      const user = new User(response.data);
 
-    // Store the token into the local storage.
-    localStorage.setItem('token', user.token);
-  };
+      // Store the token into the local storage.
+      localStorage.setItem('token', user.token);
+      localStorage.setItem('id',user.id);
 
-  const sendUserToLogin = async () => {
-    history.push(`/login`);
-  };
+      // Login successfully worked --> navigate to the route /game in the GameRouter
+      history.push(`/game`);
+      // alert('user added sucessfully!')
+    } catch (error){
+        alert('Add User failed because username already exists.'); 
+        history.push('/register')
+    }
+};
 
   return (
     <BaseContainer>
       <div className="login container">
-        <div className="register form">
+        <div className="login form">
           <FormField
-            label="First Name"
-            value={firstName}
-            onChange={un => setFirstName(un)}
-          />
-          <FormField
-            label="Last Name"
-            value={lastName}
-            onChange={n => setLastName(n)}
-          />
-          <FormField
-            label="Student ID"
-            value={studentID}
-            onChange={sid => setStudentID(sid)}
-          />
-          <FormField
-            label="Birthday"
-            value={birthday}
-            onChange={bir => setBirthday(bir)}
+            label="Username"
+            value={username}
+            onChange={un => setUsername(un)}
           />
           <FormField
             label="Password"
             value={password}
-            onChange={n => setPassword(n)}
-          />
-          <FormField
-            label="Confirm Password"
-            value={confirmPassword}
-            onChange={conf => setConfirmPassword(conf)}
+            onChange={pssw => setPassword(pssw)}
           />
           <div className="login button-container">
             <Button
-              disabled={!lastName || !password || !firstName || !studentID || !birthday || !confirmPassword}
+              disabled={!username || !password}
               width="100%"
               onClick={() => doRegister()}
             >
               Register
             </Button>
           </div>
-          <div>
-            <Button 
-              onClick={() => sendUserToLogin()}
-              width="100%"
-              >
-              Already have an account? Log in
-            </Button>
-          </div>
         </div>
       </div>
     </BaseContainer>
   ); 
-};
+}
 
-export default Register;
+export default Register
