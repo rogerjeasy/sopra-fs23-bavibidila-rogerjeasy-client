@@ -6,6 +6,8 @@ import {Button} from 'components/ui/Button'
 import 'styles/views/Login.scss'
 import BaseContainer from "components/ui/BaseContainer";
 import PropTypes from "prop-types";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css'
 
 
 const FormField = props => {
@@ -59,6 +61,8 @@ const FormField = props => {
           value={username}
           onChange={un => setUsername(un)}
         />
+
+        <DatePicker selected = {birthDay} onChange={(birthDay)=>setBirthDay(birthDay)} dateFormat="dd-MM-yyyy"/>
 
         <div className="login button-container">
           <Button
