@@ -47,6 +47,12 @@ const Game = () => {
     history.push("/profile");
   }
 
+  // const viewProfile = (user) => {
+  //   setUsers(user)
+  //   // localStorage.setItem('id',id)
+  //   history.push('/users/${user.id}');
+  // }
+
   // the effect hook can be used to react to change in your component.
   // in this case, the effect hook is only run once, the first time the component is mounted
   // this can be achieved by leaving the second argument an empty array.
@@ -83,11 +89,8 @@ const Game = () => {
       <div className="game">
         <ul className="game user-list">
           {users.map(user => (
-            <div>
+            <div key={user} onClick={() => viewProfile(user.id)}>
               <Player user={user} key={user.id}/>
-              <li key={user} onClick={() => viewProfile(user.id)}>
-                {user.username}
-              </li>
             </div>
           ))}
         </ul>
