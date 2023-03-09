@@ -41,7 +41,7 @@ const UserProfile = () => {
                 <ul><div className="player username">Id: {user.id}</div></ul>
                 <ul><div className="player username">Status: {user.status}</div></ul>
                 <ul><div className="player username">Created date: {user.createDate}</div></ul>
-                <ul><div className="player username">Birthday: {user.birthday}</div></ul>
+                <ul><div className="player username">Birthday: {user.birthDay}</div></ul>
                 </div>
             </BaseContainer>
         )
