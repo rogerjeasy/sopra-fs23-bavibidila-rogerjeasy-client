@@ -1,46 +1,99 @@
-# SoPra FS23 - Client Template with build pack
+# SoPra FS23 User Management Client
+
+A React front end for registering, logging in and out, browsing registered users and viewing or editing a user profile (username and birthday), written for the individual assignment of the Software Engineering Lab (SoPra) at the University of Zurich, spring semester 2023. It extends the course's React client template.
+
+It talks to the REST API of [sopra-fs23-bavibidila-rogerjeasy-server](https://github.com/rogerjeasy/sopra-fs23-bavibidila-rogerjeasy-server).
+
+## Pages
+
+Routes are defined in `src/components/routing/routers/AppRouter.js`.
+
+| Route | View | What it does | API call |
+|---|---|---|---|
+| `/` | `HomePage` | Buttons leading to Login and Register. | |
+| `/register` | `Register` | Username and password form. On success stores the returned `token` and `id` in `localStorage` and opens the dashboard. | `POST /users` |
+| `/login` | `Login` | Username and password form. Only reachable without a stored token (`LoginGuard`). | `POST /users/login` |
+| `/game/dashboard` | `Game` | List of registered users; clicking one opens its profile. Buttons to edit the profile and to log out. Requires a stored token (`GameGuard`). | `GET /users`, `POST /users/logout/{id}` |
+| `/profile` | `UserProfile` | Shows username, id, status, creation date and birthday of the selected user. | `GET /users/{id}` |
+| `/edit` | `EditUserProfile` | New username and a birthday date picker (future dates disabled). | `PUT /users/{id}` |
+
+All of these endpoints exist in the matching server.
+
+## Tech stack
+
+- React 17, React Router 5
+- Axios for HTTP (`src/helpers/api.js`), Sass via `node-sass`
+- Create React App (`react-scripts` 5), Jest test runner
+- Google App Engine (`app.yaml`), GitHub Actions
+
+## Project structure
+
+```
+src/
+  App.js                      header + router
+  components/
+    routing/routers/          AppRouter, GameRouter
+    routing/routeProtectors/  GameGuard, LoginGuard (others are unused drafts)
+    views/                    HomePage, Login, Register, Game, UserProfile, EditUserProfile, Header
+    ui/                       Button, BaseContainer, Spinner, ReactLogo
+  helpers/                    api.js (Axios instance, error helper), getDomain.js, isProduction.js
+  models/User.js
+  styles/                     SCSS theme, UI and view styles
+app.yaml                      App Engine static hosting config
+.github/workflows/main.yml    build and deploy workflow
+```
 
 ## Getting started
 
-Read and go through these Tutorials. It will make your life easier:)
+### Prerequisites
 
-- Read the React [Docs](https://reactjs.org/docs/getting-started.html)
-- Do this React [Getting Started](https://reactjs.org/tutorial/tutorial.html) Tutorial (it doesn’t assume any existing React knowledge)
-- Get an Understanding of [CSS](https://www.w3schools.com/Css/), [SCSS](https://sass-lang.com/documentation/syntax), and [HTML](https://www.w3schools.com/html/html_intro.asp)!
+- Node.js 18 with npm (the version used by the deploy workflow and `app.yaml`; `node-sass` 8 needs a Node version it ships bindings for)
+- The server running locally, see [sopra-fs23-bavibidila-rogerjeasy-server](https://github.com/rogerjeasy/sopra-fs23-bavibidila-rogerjeasy-server)
 
-Next, there are two other technologies that you should look at:
+### Install and run
 
-* [react-router-dom](https://reacttraining.com/react-router/web/guides/quick-start) offers declarative routing for React. It is a collection of navigational components that fit nicely with the application. 
-* [react-hooks](https://reactrouter.com/web/api/Hooks) let you access the router's state and perform navigation from inside your components.
+```bash
+npm install
+npm run dev
+```
 
-## Prerequisites and Installation
-For your local development environment, you will need Node.js. You can download it [here](https://nodejs.org). All other dependencies, including React, get installed with:
+The app opens on http://localhost:3000 and reloads on changes.
 
-```npm install```
+Use `npm install` rather than `npm ci`: `package-lock.json` is out of sync with `package.json` (it still locks `node-sass` 7), so `npm ci` refuses to install.
 
-Run this command before you start your application for the first time. Next, you can start the app with:
+### Backend URL
 
-```npm run dev```
+`src/helpers/getDomain.js` picks the API base URL: `http://localhost:8080` in development, and a hard-coded App Engine URL when `NODE_ENV` is `production` (that is, in `npm run build` output). Change the production URL there if you deploy the server elsewhere. There are no other environment variables.
 
-Now you can open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Scripts
 
-Notice that the page will reload if you make any edits. You will also see any lint errors in the console (use Google Chrome).
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the development server on port 3000. |
+| `npm run build` | Production build into `build/` (runs with `CI=false`, so lint warnings do not fail the build). |
+| `npm start` | Serve `build/` with `serve -s build`. `serve` is not a dependency, so install it first (`npm install -g serve`). |
+| `npm test` | Run Jest in watch mode (`react-scripts test --env=jsdom`). |
 
-### Testing
-Testing is optional, and you can run the tests with `npm run test`.
-This launches the test runner in an interactive watch mode. See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The only test is `src/App.test.js`, which checks that the app renders without crashing. On macOS, if you hit an `fsevents` error when running tests, see https://github.com/jest-community/vscode-jest/issues/423.
 
-> For macOS user running into a 'fsevents' error: https://github.com/jest-community/vscode-jest/issues/423
+## Deployment
 
-### Build
-Finally, `npm run build` builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance: the build is minified, and the filenames include hashes.<br>
+- `app.yaml` serves the built `build/` folder as static files on the App Engine `nodejs18` runtime, with every unknown path falling back to `index.html` so client-side routes work.
+- `.github/workflows/main.yml` runs `npm install` and `npm run build` with Node 18 on every push to `main`, then deploys to App Engine using a `GCP_SERVICE_CREDENTIALS` repository secret.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The App Engine deployment from the course is no longer running.
 
-## Learn More
+## Known gaps
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- Password fields are plain text inputs, not masked.
+- The server's registration and login responses have no `token` field, so the client stores the string `undefined` as its token. The route guards only check that some token exists.
+- `/profile` and `/edit` are not guarded. Both use the `id` in `localStorage`, which is overwritten when you open another user's profile from the list, so editing then targets that user.
+- `views/UsersList.js`, `views/LoginRegister.js` and several files in `routeProtectors/` are not wired into the router; `LoginRegisterGuard.js` is empty.
 
+## Context
 
-> Thanks to Lucas Pelloni and Kyrill Hux for working on the template.
+Built on the React client template from the University of Zurich SoPra course (Software Engineering Lab, FS23), which provided the project setup, base UI components, route guards, Axios helper and App Engine workflow. The registration, profile, edit-profile and logout features and the routing changes are the owner's own work.
+
+## License
+
+Apache License 2.0, see [LICENSE](LICENSE).
